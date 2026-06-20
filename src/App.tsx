@@ -1,15 +1,13 @@
-import { bubbleSort } from './algorithms'
+import { bubbleSort, selectionSort } from './algorithms'
 
 function App() {
-  const steps = bubbleSort.run([5, 2, 8, 1])
+  console.log('Bubble Sort')
+  console.log(bubbleSort.run([5, 3, 1, 4]))
 
-  console.log(steps)
+  console.log('Selection Sort')
+  console.log(selectionSort.run([5, 3, 1, 4]))
 
-  return (
-    <div>
-      <h1>Algorithm Visualiser</h1>
-    </div>
-  )
+  return <h1>Algorithm Visualizer</h1>
 }
 
 export default App
