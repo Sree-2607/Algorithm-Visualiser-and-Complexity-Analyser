@@ -1,9 +1,13 @@
+import { bubbleSort } from './algorithms'
+
 function App() {
+  const steps = bubbleSort.run([5, 2, 8, 1])
+
+  console.log(steps)
+
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center">
-      <h1 className="text-5xl font-bold">
-        Day 1 completed!!! 🚀
-      </h1>
+    <div>
+      <h1>Algorithm Visualiser</h1>
     </div>
   )
 }

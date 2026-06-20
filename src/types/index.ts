@@ -1,17 +1,31 @@
 export type AlgorithmType =
   | 'bubbleSort'
   | 'selectionSort'
+  | 'insertionSort'
   | 'mergeSort'
   | 'quickSort'
   | 'heapSort'
   | 'bfs'
   | 'dfs'
+  | 'dijkstra'
+  | 'astar'
+
+export type AlgorithmCategory = 'sorting' | 'graph'
+
+export type StepEventType =
+  | 'compare'
+  | 'swap'
+  | 'overwrite'
+  | 'finalize'
+  | 'visit'
+  | 'enqueue'
 
 export type BarState =
   | 'default'
   | 'comparing'
   | 'swapping'
   | 'sorted'
+  | 'pivot'
 
 export type Complexity = {
   best: string
@@ -20,27 +34,36 @@ export type Complexity = {
   space: string
 }
 
+export type StepEvent = {
+  type: StepEventType
+  indices: number[]
+  values?: number[]
+  pseudocodeLine: number
+  description: string
+}
+
 export type ArrayBar = {
   value: number
   state: BarState
 }
 
-export type AnimationFrame = {
-  bars: ArrayBar[]
+export type RunStats = {
   comparisons: number
-  swaps: number
-  currentStep: string
+  swapsOrWrites: number
 }
 
 export type AlgorithmInfo = {
   id: AlgorithmType
   name: string
+  category: AlgorithmCategory
   description: string
   useCase: string
   complexity: Complexity
+  pseudocode: string[]
 }
 
-export type SortingAlgorithm = {
+export type Algorithm = {
   info: AlgorithmInfo
-  generateFrames: (input: number[]) => AnimationFrame[]
+  run: (input: number[]) => StepEvent[]
 }
+
