@@ -1,4 +1,4 @@
-import { bubbleSort, selectionSort } from './algorithms'
+import { bubbleSort, selectionSort, insertionSort } from './algorithms'
 
 function App() {
   console.log('Bubble Sort')
@@ -6,6 +6,9 @@ function App() {
 
   console.log('Selection Sort')
   console.log(selectionSort.run([5, 3, 1, 4]))
+
+  console.log('Insertion Sort')
+  console.log(insertionSort.run([5, 3, 1, 4]))
 
   return <h1>Algorithm Visualizer</h1>
 }

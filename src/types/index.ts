@@ -19,6 +19,7 @@ export type StepEventType =
   | 'finalize'
   | 'visit'
   | 'enqueue'
+  | 'shift'
 
 export type BarState =
   | 'default'
