@@ -23,6 +23,8 @@ export type StepEventType =
   | 'divide'
   | 'merge'
   | 'baseCase'
+  | 'pivot'
+  | 'partition'
   
 export type BarState =
   | 'default'
@@ -30,6 +32,12 @@ export type BarState =
   | 'swapping'
   | 'sorted'
   | 'pivot'
+
+export type PivotStrategy =
+  | 'first'
+  | 'last'
+  | 'random'
+  | 'medianOfThree'
 
 export type Complexity = {
   best: string
@@ -68,6 +76,10 @@ export type AlgorithmInfo = {
 
 export type Algorithm = {
   info: AlgorithmInfo
-  run: (input: number[]) => StepEvent[]
+  run: (
+    input: number[],
+    options?: {
+      pivotStrategy?: PivotStrategy
+    }
+  ) => StepEvent[]
 }
-
