@@ -20,7 +20,10 @@ export type StepEventType =
   | 'visit'
   | 'enqueue'
   | 'shift'
-
+  | 'divide'
+  | 'merge'
+  | 'baseCase'
+  
 export type BarState =
   | 'default'
   | 'comparing'
