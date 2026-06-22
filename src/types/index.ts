@@ -25,6 +25,7 @@ export type StepEventType =
   | 'baseCase'
   | 'pivot'
   | 'partition'
+  | 'heapify'
   
 export type BarState =
   | 'default'
