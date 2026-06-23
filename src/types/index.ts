@@ -84,3 +84,18 @@ export type Algorithm = {
     }
   ) => StepEvent[]
 }
+
+export type UseStepPlayerResult = {
+  bars: ArrayBar[]
+  currentStep: StepEvent | null
+  currentStepIndex: number
+  totalSteps: number
+  isPlaying: boolean
+  comparisons: number
+  swapsOrWrites: number
+  play: () => void
+  pause: () => void
+  reset: () => void
+  stepForward: () => void
+  stepBackward: () => void
+}
