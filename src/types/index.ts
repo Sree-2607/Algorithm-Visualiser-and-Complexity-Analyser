@@ -99,3 +99,7 @@ export type UseStepPlayerResult = {
   stepForward: () => void
   stepBackward: () => void
 }
+
+export type SortVisualizerProps = {
+  bars: ArrayBar[]
+}
