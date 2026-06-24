@@ -3,6 +3,7 @@ import { heapSort } from './algorithms'
 import Controls from './components/Controls'
 import SortVisualizer from './components/SortVisualizer'
 import { useStepPlayer } from './hooks/useStepPlayer'
+import Legend from './components/Legend'
 
 function App() {
   const input = [5, 3, 1, 4]
@@ -32,7 +33,7 @@ function App() {
       </p>
 
       <p className="mb-4">{player.currentStep?.description}</p>
-
+      <Legend />
       <SortVisualizer bars={player.bars} />
     </div>
   )

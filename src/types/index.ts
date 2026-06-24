@@ -114,3 +114,8 @@ export type ControlsProps = {
   onStepBackward: () => void
   onSpeedChange: (speed: number) => void
 }
+
+export type LegendItem = {
+  label: string
+  className: string
+}
