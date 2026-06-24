@@ -40,6 +40,14 @@ export type PivotStrategy =
   | 'random'
   | 'medianOfThree'
 
+export type InputSource =
+  | 'random'
+  | 'sorted'
+  | 'reverse'
+  | 'nearlySorted'
+  | 'fewUnique'
+  | 'custom'
+
 export type Complexity = {
   best: string
   average: string
@@ -137,4 +145,12 @@ export type PseudoCodePanelProps = {
 export type AlgoSelectorProps = {
   selectedAlgorithm: AlgorithmType
   onAlgorithmChange: (algorithm: AlgorithmType) => void
+}
+
+export type InputSourcePickerProps = {
+  selectedInputSource: InputSource
+  customInput: string
+  onInputSourceChange: (inputSource: InputSource) => void
+  onCustomInputChange: (customInput: string) => void
+  onGenerateInput: () => void
 }

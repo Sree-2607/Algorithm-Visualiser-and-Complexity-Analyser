@@ -7,7 +7,8 @@ import Legend from './components/Legend'
 import StatsPanel from './components/StatsPanel'
 import PseudoCodePanel from './components/PseudocodePanel'
 import AlgoSelector from './components/AlgoSelector'
-import type { AlgorithmType } from './types'
+import type { AlgorithmType, InputSource } from './types'
+import InputSourcePicker from './components/inputSourcePicker'
 
 function App() {
   const input = [5, 3, 1, 4]
@@ -19,6 +20,9 @@ function App() {
 
   const [selectedAlgorithm, setSelectedAlgorithm] =
   useState<AlgorithmType>('heapSort')
+  
+  const [selectedInputSource, setSelectedInputSource] = useState<InputSource>('random')
+  const [customInput, setCustomInput] = useState('')
 
   return (
     <div className="min-h-screen bg-slate-950 p-6 text-white">
@@ -27,6 +31,13 @@ function App() {
       <AlgoSelector
         selectedAlgorithm={selectedAlgorithm}
         onAlgorithmChange={setSelectedAlgorithm}
+      />
+      <InputSourcePicker
+        selectedInputSource={selectedInputSource}
+        customInput={customInput}
+        onInputSourceChange={setSelectedInputSource}
+        onCustomInputChange={setCustomInput}
+        onGenerateInput={() => console.log('Generate:', selectedInputSource, customInput)}
       />
 
       <Controls
