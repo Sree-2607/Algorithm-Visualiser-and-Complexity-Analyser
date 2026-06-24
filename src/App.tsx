@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { heapSort } from './algorithms'
+import Controls from './components/Controls'
 import SortVisualizer from './components/SortVisualizer'
 import { useStepPlayer } from './hooks/useStepPlayer'
 
@@ -6,21 +8,26 @@ function App() {
   const input = [5, 3, 1, 4]
   const steps = heapSort.run(input)
 
-  const player = useStepPlayer(input, steps, 500)
+  const [speed, setSpeed] = useState(500)
+
+  const player = useStepPlayer(input, steps, speed)
 
   return (
     <div className="min-h-screen bg-slate-950 p-6 text-white">
       <h1 className="mb-4 text-2xl font-bold">Algorithm Visualizer</h1>
 
-      <div className="mb-4 flex gap-2">
-        <button onClick={player.stepBackward}>Back</button>
-        <button onClick={player.stepForward}>Next</button>
-        <button onClick={player.play}>Play</button>
-        <button onClick={player.pause}>Pause</button>
-        <button onClick={player.reset}>Reset</button>
-      </div>
+      <Controls
+        isPlaying={player.isPlaying}
+        speed={speed}
+        onPlay={player.play}
+        onPause={player.pause}
+        onReset={player.reset}
+        onStepForward={player.stepForward}
+        onStepBackward={player.stepBackward}
+        onSpeedChange={setSpeed}
+      />
 
-      <p className="mb-2">
+      <p className="mb-2 mt-4">
         Step {player.currentStepIndex + 1} of {player.totalSteps}
       </p>
 

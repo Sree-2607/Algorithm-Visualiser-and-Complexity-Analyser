@@ -103,3 +103,14 @@ export type UseStepPlayerResult = {
 export type SortVisualizerProps = {
   bars: ArrayBar[]
 }
+
+export type ControlsProps = {
+  isPlaying: boolean
+  speed: number
+  onPlay: () => void
+  onPause: () => void
+  onReset: () => void
+  onStepForward: () => void
+  onStepBackward: () => void
+  onSpeedChange: (speed: number) => void
+}
