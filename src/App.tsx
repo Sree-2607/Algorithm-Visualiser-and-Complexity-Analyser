@@ -5,6 +5,7 @@ import SortVisualizer from './components/SortVisualizer'
 import { useStepPlayer } from './hooks/useStepPlayer'
 import Legend from './components/Legend'
 import StatsPanel from './components/StatsPanel'
+import PseudoCodePanel from './components/PseudocodePanel'
 
 function App() {
   const input = [5, 3, 1, 4]
@@ -36,6 +37,10 @@ function App() {
         currentStepIndex={player.currentStepIndex}
         totalSteps={player.totalSteps}
         currentStepDescription={player.currentStep?.description ?? 'Ready'}
+      />
+      <PseudoCodePanel 
+        lines={heapSort.info.pseudocode} 
+        activeLine={player.currentStep?.pseudocodeLine ?? null}
       />
 
       <p className="mb-2 mt-4">

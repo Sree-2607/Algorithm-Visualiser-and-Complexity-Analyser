@@ -128,3 +128,8 @@ export type StatsPanelProps = {
   totalSteps: number
   currentStepDescription: string
 }
+
+export type PseudoCodePanelProps = {
+  lines: string[]
+  activeLine: number | null
+}
