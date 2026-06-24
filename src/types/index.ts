@@ -133,3 +133,8 @@ export type PseudoCodePanelProps = {
   lines: string[]
   activeLine: number | null
 }
+
+export type AlgoSelectorProps = {
+  selectedAlgorithm: AlgorithmType
+  onAlgorithmChange: (algorithm: AlgorithmType) => void
+}

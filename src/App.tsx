@@ -6,6 +6,8 @@ import { useStepPlayer } from './hooks/useStepPlayer'
 import Legend from './components/Legend'
 import StatsPanel from './components/StatsPanel'
 import PseudoCodePanel from './components/PseudocodePanel'
+import AlgoSelector from './components/AlgoSelector'
+import type { AlgorithmType } from './types'
 
 function App() {
   const input = [5, 3, 1, 4]
@@ -15,9 +17,17 @@ function App() {
 
   const player = useStepPlayer(input, steps, speed)
 
+  const [selectedAlgorithm, setSelectedAlgorithm] =
+  useState<AlgorithmType>('heapSort')
+
   return (
     <div className="min-h-screen bg-slate-950 p-6 text-white">
       <h1 className="mb-4 text-2xl font-bold">Algorithm Visualizer</h1>
+
+      <AlgoSelector
+        selectedAlgorithm={selectedAlgorithm}
+        onAlgorithmChange={setSelectedAlgorithm}
+      />
 
       <Controls
         isPlaying={player.isPlaying}
