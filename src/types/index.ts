@@ -119,3 +119,12 @@ export type LegendItem = {
   label: string
   className: string
 }
+
+export type StatsPanelProps = {
+  comparisons: number
+  swapsOrWrites: number
+  operationLabel: string
+  currentStepIndex: number
+  totalSteps: number
+  currentStepDescription: string
+}

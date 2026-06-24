@@ -4,6 +4,7 @@ import Controls from './components/Controls'
 import SortVisualizer from './components/SortVisualizer'
 import { useStepPlayer } from './hooks/useStepPlayer'
 import Legend from './components/Legend'
+import StatsPanel from './components/StatsPanel'
 
 function App() {
   const input = [5, 3, 1, 4]
@@ -26,6 +27,15 @@ function App() {
         onStepForward={player.stepForward}
         onStepBackward={player.stepBackward}
         onSpeedChange={setSpeed}
+      />
+
+      <StatsPanel
+        comparisons={player.comparisons}
+        swapsOrWrites={player.swapsOrWrites}
+        operationLabel="Swaps / Writes"
+        currentStepIndex={player.currentStepIndex}
+        totalSteps={player.totalSteps}
+        currentStepDescription={player.currentStep?.description ?? 'Ready'}
       />
 
       <p className="mb-2 mt-4">
