@@ -1,4 +1,4 @@
-import type { Algorithm, PivotStrategy, StepEvent } from '../types'
+import type { Algorithm, PivotStrategy, StepEvent } from '../../types'
 
 export const quickSort: Algorithm = {
   info: {

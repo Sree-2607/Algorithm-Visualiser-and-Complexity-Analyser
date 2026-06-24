@@ -1,4 +1,4 @@
-import type { Algorithm, StepEvent } from '../types'
+import type { Algorithm, StepEvent } from '../../types'
 
 export const selectionSort: Algorithm = {
   info: {
