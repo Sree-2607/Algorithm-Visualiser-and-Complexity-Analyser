@@ -38,19 +38,19 @@ export function useStepPlayer(
       switch (step.type) {
         case 'compare':
           comparisons++
-          step.indices.forEach((idx) => {
+          step.indices?.forEach((idx) => {
             if (bars[idx]) bars[idx].state = 'comparing'
           })
           break
 
         case 'pivot':
-          step.indices.forEach((idx) => {
+          step.indices?.forEach((idx) => {
             if (bars[idx]) bars[idx].state = 'pivot'
           })
           break
 
         case 'swap':
-          const [s1, s2] = step.indices
+          const [s1, s2] = step.indices ?? []
           if (s1 !== undefined && s2 !== undefined && bars[s1] && bars[s2]) {
             ;[workingArray[s1], workingArray[s2]] = [workingArray[s2], workingArray[s1]]
             ;[bars[s1].value, bars[s2].value] = [bars[s2].value, bars[s1].value]
@@ -61,7 +61,7 @@ export function useStepPlayer(
           break
 
         case 'shift':
-          const [fromIdx, toIdx] = step.indices
+          const [fromIdx, toIdx] = step.indices ?? []
           if (fromIdx !== undefined && toIdx !== undefined && bars[toIdx]) {
             workingArray[toIdx] = workingArray[fromIdx]
             bars[toIdx].value = workingArray[fromIdx]
@@ -71,7 +71,7 @@ export function useStepPlayer(
           break
 
         case 'overwrite':
-          const targetIdx = step.indices[0]
+          const targetIdx = step.indices?.[0]
           const newVal = step.values?.[0]
           if (targetIdx !== undefined && newVal !== undefined && bars[targetIdx]) {
             workingArray[targetIdx] = newVal
@@ -84,7 +84,7 @@ export function useStepPlayer(
         case 'divide':
         case 'merge':
           // Highlight active subsets or ranges using matching styles
-          step.indices.forEach((idx) => {
+          step.indices?.forEach((idx) => {
             if (bars[idx]) bars[idx].state = 'comparing'
           })
           break
@@ -92,7 +92,7 @@ export function useStepPlayer(
         case 'baseCase':
         case 'partition':
         case 'finalize':
-          step.indices.forEach((idx) => {
+          step.indices?.forEach((idx) => {
             if (bars[idx]) bars[idx].state = 'sorted'
           })
           break

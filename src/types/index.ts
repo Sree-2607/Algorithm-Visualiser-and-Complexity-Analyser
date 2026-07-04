@@ -19,6 +19,7 @@ export type StepEventType =
   | 'finalize'
   | 'visit'
   | 'enqueue'
+  | 'discover'
   | 'shift'
   | 'divide'
   | 'merge'
@@ -26,6 +27,8 @@ export type StepEventType =
   | 'pivot'
   | 'partition'
   | 'heapify'
+  | 'relax'
+  | 'negativeCycle'
   
 export type BarState =
   | 'default'
@@ -48,6 +51,13 @@ export type InputSource =
   | 'fewUnique'
   | 'custom'
 
+export type GraphNodeState =
+  | 'unvisited'
+  | 'frontier'
+  | 'visited'
+  | 'current'
+  | 'path'
+
 export type Complexity = {
   best: string
   average: string
@@ -57,7 +67,9 @@ export type Complexity = {
 
 export type StepEvent = {
   type: StepEventType
-  indices: number[]
+  indices?: number[]
+  nodeIds?: string[]
+  edge?: GraphEdge
   values?: number[]
   pseudocodeLine: number
   description: string
@@ -153,4 +165,32 @@ export type InputSourcePickerProps = {
   onInputSourceChange: (inputSource: InputSource) => void
   onCustomInputChange: (customInput: string) => void
   onGenerateInput: () => void
+}
+
+export type GraphNode = {
+  id: string
+  x: number
+  y: number
+  state: GraphNodeState
+}
+
+export type GraphEdge = {
+  from: string
+  to: string
+  weight?: number
+}
+
+export type GraphAlgorithmOptions = {
+  goalNodeId?: string
+  isDirected?: boolean
+}
+
+export type GraphAlgorithm = {
+  info: AlgorithmInfo
+  run: (
+    nodes: GraphNode[],
+    edges: GraphEdge[],
+    startNodeId: string,
+    options?: GraphAlgorithmOptions
+  ) => StepEvent[]
 }
