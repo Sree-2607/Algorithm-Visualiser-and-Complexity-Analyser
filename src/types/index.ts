@@ -194,3 +194,8 @@ export type GraphAlgorithm = {
     options?: GraphAlgorithmOptions
   ) => StepEvent[]
 }
+
+export interface GraphData {
+  nodes: GraphNode[]
+  edges: GraphEdge[]
+}
