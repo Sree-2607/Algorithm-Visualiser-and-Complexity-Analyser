@@ -1,4 +1,4 @@
-import type { GraphData, GraphNode } from '../../types'
+import type { GraphData, GraphNode, GraphEdge } from '../../types'
 
 /**
  * Returns a static, clean default graph topology.
@@ -12,7 +12,7 @@ export function createDefaultGraph(): GraphData {
     { id: 'E', x: 350, y: 320, state: 'unvisited' },
   ]
 
-  const edges = [
+  const edges: GraphEdge[] = [
     { from: 'A', to: 'B', weight: 4 },
     { from: 'A', to: 'C', weight: 2 },
     { from: 'B', to: 'D', weight: 3 },
@@ -56,12 +56,15 @@ export function generateRandomGraph(
         const dist = Math.sqrt((n.x - x) ** 2 + (n.y - y) ** 2)
         return dist >= 80 // Minimum 80px space between nodes
       })
+      if (!validPosition && attempts >= 100) {
+        console.warn(`Could not place node ${id} without overlap after 100 attempts.`)
+      }
     }
 
     nodes.push({ id, x, y, state: 'unvisited' })
   }
 
-  // 2. Connect nodes to ensure a contiguous graph
+  // 2. Connect consecutive nodes to ensure a connected graph
   for (let i = 0; i < nodes.length - 1; i++) {
     const from = nodes[i].id
     const to = nodes[i + 1].id
@@ -72,7 +75,8 @@ export function generateRandomGraph(
   // 3. Add random extra edges for density
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 2; j < nodes.length; j++) {
-      if (Math.random() > 0.65) {
+      const extraEdgeProbability = 0.35 // 35% chance to add an extra edge
+      if (Math.random() > extraEdgeProbability) {
         const from = nodes[i].id
         const to = nodes[j].id
         const weight = Math.floor(1 + Math.random() * 9)
@@ -88,10 +92,11 @@ export function generateRandomGraph(
  * Parses user custom text input into valid graph data.
  * Format expected: "A-B:4, B-C:2, C-D:1"
  */
-export function parseCustomGraph(input: string): GraphData {
+export function parseCustomGraph(input: string): GraphData & { errors: string[] } {
   const rawPairs = input.split(',').map((s) => s.trim())
   const nodeSet = new Set<string>()
   const edges: { from: string; to: string; weight: number }[] = []
+  const errors: string[] = []
 
   rawPairs.forEach((pair) => {
     // Matches patterns like A-B:5 or A-B
@@ -102,24 +107,17 @@ export function parseCustomGraph(input: string): GraphData {
       nodeSet.add(from)
       nodeSet.add(to)
       edges.push({ from, to, weight })
+    } else if (pair.length > 0) {
+      errors.push(`Invalid edge format: "${pair}"`)
     }
   })
 
-  // Circular layout positioning for parsed custom nodes
-  const nodeList = Array.from(nodeSet)
-  const centerX = 250
-  const centerY = 200
-  const radius = 130
+  const nodes: GraphNode[] = Array.from(nodeSet).map((id) => ({
+    id,
+    x: Math.random() * 300 + 100,
+    y: Math.random() * 300 + 50,
+    state: 'unvisited',
+  }))
 
-  const nodes: GraphNode[] = nodeList.map((id, index) => {
-    const angle = (2 * Math.PI * index) / nodeList.length
-    return {
-      id,
-      x: Math.round(centerX + radius * Math.cos(angle)),
-      y: Math.round(centerY + radius * Math.sin(angle)),
-      state: 'unvisited',
-    }
-  })
-
-  return { nodes, edges }
+  return { nodes, edges, errors }
 }

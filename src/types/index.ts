@@ -199,3 +199,8 @@ export interface GraphData {
   nodes: GraphNode[]
   edges: GraphEdge[]
 }
+
+export type ParseGraphResult = {
+  graph: GraphData
+  errors: string[]
+}

@@ -1,5 +1,6 @@
 import type { GraphAlgorithm, StepEvent } from '../../types'
 import { buildWeightedAdjacencyList } from './graphUtils'
+import { hasNegativeWeights } from '../data/graphValidation'
 
 export const dijkstra: GraphAlgorithm = {
   info: {
@@ -33,6 +34,17 @@ export const dijkstra: GraphAlgorithm = {
 
   run(nodes, edges, startNodeId): StepEvent[] {
     const steps: StepEvent[] = []
+      if (hasNegativeWeights({nodes, edges})) {
+        return [
+            {
+                type:'finalize',
+                nodeIds:[],
+                pseudocodeLine:0,
+                description:
+                'Dijkstra cannot process graphs with negative edge weights.'
+            }
+        ]
+    }
     const adjacencyList = buildWeightedAdjacencyList(nodes, edges)
 
     const distances: Record<string, number> = {}
