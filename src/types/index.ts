@@ -204,3 +204,5 @@ export type ParseGraphResult = {
   graph: GraphData
   errors: string[]
 }
+
+export type TabType = 'overview' | 'howItWorks' | 'useCases'

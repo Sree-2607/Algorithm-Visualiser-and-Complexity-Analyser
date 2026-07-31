@@ -1,5 +1,7 @@
-import GraphVisualizer from './components/graphVisualizer'
+import GraphVisualizer from './components/GraphVisualizer'
+import InformationPanel from './components/InformationPanel'
 import { createDefaultGraph } from './algorithms/data/graphPresets'
+
 
 function App() {
 
@@ -12,12 +14,23 @@ function App() {
         Algorithm Visualizer
       </h1>
 
-      <GraphVisualizer
-        graph={graph}
-      />
+
+      <div className="space-y-6">
+
+        <GraphVisualizer 
+          graph={graph}
+        />
+
+
+        <InformationPanel
+          algorithmId="dijkstra"
+        />
+
+      </div>
 
     </div>
   )
 }
+
 
 export default App
