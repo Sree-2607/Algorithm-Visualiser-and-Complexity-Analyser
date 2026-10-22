@@ -1,5 +1,4 @@
 import type { InputSource, InputSourcePickerProps } from '../types'
-
 const inputSources: {
   id: InputSource
   label: string

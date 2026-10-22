@@ -1,5 +1,6 @@
 import type { GraphAlgorithm, GraphNode, StepEvent } from '../../types'
 import { buildWeightedAdjacencyList, euclideanDistance } from './graphUtils'
+import { hasNegativeWeights } from '../data/graphValidation'
 
 export const astar: GraphAlgorithm = {
   info: {
@@ -7,81 +8,122 @@ export const astar: GraphAlgorithm = {
     name: 'A* Search',
     category: 'graph',
     description:
-      'A* Search computes the absolute shortest path between nodes using actual cost values ($g$) plus an estimated distance heuristic ($h$).',
+      'A* searches for the shortest path using the known path cost g(n) and an admissible estimated remaining cost h(n).',
     useCase:
-      'Powering real-time video game pathfinding, robotics spatial awareness, logistics mapping, and grid cell routing.',
+      'Useful for video game pathfinding, robotics, route planning, and spatial navigation.',
     complexity: {
       best: 'O(E)',
-      average: 'O(E log V)',
-      worst: 'O(V²)',
+      average: 'O(V² + E)',
+      worst: 'O(V² + E)',
       space: 'O(V)',
     },
     pseudocode: [
-      'create open set',                         // Index 0
-      'set start gScore to 0',                   // Index 1
-      'set start fScore to heuristic(start, goal)', // Index 2
-      'while open set is not empty',             // Index 3
-      '  pick node with smallest fScore',        // Index 4
-      '  if current node is goal, stop',         // Index 5
-      '  for each neighbor',                     // Index 6
-      '    tentativeG = gScore[current] + edgeWeight', // Index 7
-      '    if tentativeG < gScore[neighbor]',   // Index 8
-      '      update gScore and fScore',          // Index 9
-      '      discover neighbor',                 // Index 10
+      'create open set',
+      'set start gScore to 0',
+      'set start fScore to heuristic(start, goal)',
+      'while open set is not empty',
+      '  pick node with smallest fScore',
+      '  if current node is goal, stop',
+      '  for each neighbor',
+      '    tentativeG = gScore[current] + edgeWeight',
+      '    if tentativeG < gScore[neighbor]',
+      '      update gScore and fScore',
+      '      discover neighbor',
     ],
   },
 
-  // Note: Extended signature uses options map to safely pass goal coordinates
-  run(nodes, edges, startNodeId, options?: { goalNodeId?: string }): StepEvent[] {
+  run(nodes, edges, startNodeId, options): StepEvent[] {
     const steps: StepEvent[] = []
     const goalNodeId = options?.goalNodeId
 
-    if (!goalNodeId) {
-      steps.push({
+    // A* requires non-negative weights in this implementation.
+    if (hasNegativeWeights({ nodes, edges })) {
+      return [{
         type: 'finalize',
         nodeIds: [],
-        pseudocodeLine: 5,
-        description: 'A* execution failed: A valid goal node target identifier must be specified.',
-      })
-      return steps
+        pseudocodeLine: 0,
+        description:
+          'A* cannot process negative edge weights in this implementation. Use a graph with non-negative weights.',
+      }]
     }
 
-    // Performance Optimization: Map nodes to a hash index for O(1) lookups
-    const nodeMap: Record<string, GraphNode> = {}
-    nodes.forEach((node) => {
-      nodeMap[node.id] = node
-    })
-
-    const startNode = nodeMap[startNodeId]
-    const goalNode = nodeMap[goalNodeId]
-
-    if (!startNode || !goalNode) {
-      steps.push({
+    if (!goalNodeId) {
+      return [{
         type: 'finalize',
         nodeIds: [],
         pseudocodeLine: 5,
-        description: 'A* execution failed: Start or destination node coordinate could not be mapped.',
-      })
-      return steps
+        description: 'A* requires a valid goal node.',
+      }]
+    }
+
+    // Fast node lookup using a Map.
+    const nodeMap = new Map<string, GraphNode>(
+      nodes.map((node) => [node.id, node])
+    )
+
+    const startNode = nodeMap.get(startNodeId)
+    const goalNode = nodeMap.get(goalNodeId)
+
+    if (!startNode || !goalNode) {
+      return [{
+        type: 'finalize',
+        nodeIds: [],
+        pseudocodeLine: 5,
+        description: 'Start or goal node was not found.',
+      }]
     }
 
     const adjacencyList = buildWeightedAdjacencyList(nodes, edges)
 
+    // Find a safe scaling factor for the Euclidean heuristic.
+    // This ensures h(n) never overestimates actual path cost.
+    let heuristicScale = Infinity
+
+    for (const edge of edges) {
+      const fromNode = nodeMap.get(edge.from)
+      const toNode = nodeMap.get(edge.to)
+
+      if (!fromNode || !toNode) continue
+
+      const physicalDistance = euclideanDistance(
+        fromNode.x,
+        fromNode.y,
+        toNode.x,
+        toNode.y
+      )
+
+      if (physicalDistance > 0) {
+        const ratio = (edge.weight ?? 1) / physicalDistance
+        heuristicScale = Math.min(heuristicScale, ratio)
+      }
+    }
+
+    if (!Number.isFinite(heuristicScale)) {
+      heuristicScale = 0
+    }
+
+    const heuristic = (node: GraphNode): number =>
+      heuristicScale * euclideanDistance(
+        node.x,
+        node.y,
+        goalNode.x,
+        goalNode.y
+      )
+
     const openSet = new Set<string>()
     const closedSet = new Set<string>()
-    const cameFrom: Record<string, string> = {} // Track parents for path reconstruction
 
+    const cameFrom: Record<string, string> = {}
     const gScore: Record<string, number> = {}
     const fScore: Record<string, number> = {}
 
-    nodes.forEach((node) => {
+    for (const node of nodes) {
       gScore[node.id] = Infinity
       fScore[node.id] = Infinity
-    })
+    }
 
     gScore[startNodeId] = 0
-    fScore[startNodeId] = euclideanDistance(startNode.x, startNode.y, goalNode.x, goalNode.y)
-
+    fScore[startNodeId] = heuristic(startNode)
     openSet.add(startNodeId)
 
     steps.push({
@@ -89,115 +131,132 @@ export const astar: GraphAlgorithm = {
       nodeIds: [startNodeId],
       values: [fScore[startNodeId]],
       pseudocodeLine: 2,
-      description: `Initialized search root at "${startNodeId}" with heuristic cost estimate f(n) = ${fScore[startNodeId].toFixed(2)}.`,
+      description:
+        `Initialized "${startNodeId}" with f(n) = ${fScore[startNodeId].toFixed(2)}.`,
     })
 
     while (openSet.size > 0) {
       let currentNodeId: string | null = null
       let smallestFScore = Infinity
 
-      openSet.forEach((nodeId) => {
+      // Array/Set scan: O(V) selection.
+      for (const nodeId of openSet) {
         if (fScore[nodeId] < smallestFScore) {
           smallestFScore = fScore[nodeId]
           currentNodeId = nodeId
         }
-      })
+      }
 
       if (currentNodeId === null) break
 
+      const currentId: string = currentNodeId
+
       steps.push({
-        type: 'visit', // UI highlights this node as the 'current' active node
-        nodeIds: [currentNodeId],
-        values: [fScore[currentNodeId]],
+        type: 'visit',
+        nodeIds: [currentId],
+        values: [fScore[currentId]],
         pseudocodeLine: 4,
-        description: `Selected node "${currentNodeId}" from open set with minimal evaluation cost f(n) = ${fScore[currentNodeId].toFixed(2)}.`,
+        description:
+          `Selected "${currentId}" with f(n) = ${fScore[currentId].toFixed(2)}.`,
       })
 
-      // Path Reconstruction Trigger
-      if (currentNodeId === goalNodeId) {
-        const optimalPath: string[] = []
-        let currentPathNode: string | undefined = goalNodeId
-        
-        while (currentPathNode !== undefined) {
-          optimalPath.push(currentPathNode)
-          currentPathNode = cameFrom[currentPathNode]
-        }
-        optimalPath.reverse()
+      if (currentId === goalNodeId) {
+        const path: string[] = []
+        let pathNode: string | undefined = goalNodeId
 
-        // Step event to animate path reconstruction
+        while (pathNode !== undefined) {
+          path.push(pathNode)
+          pathNode = cameFrom[pathNode]
+        }
+
+        path.reverse()
+
         steps.push({
           type: 'finalize',
-          nodeIds: optimalPath,
+          nodeIds: path,
           pseudocodeLine: 5,
-          description: `Target reached! Successfully reconstructed shortest path: ${optimalPath.join(' ➔ ')}.`,
+          description:
+            `Shortest path found: ${path.join(' → ')}. Total cost: ${gScore[goalNodeId]}.`,
         })
 
         return steps
       }
 
-      openSet.delete(currentNodeId)
-      closedSet.add(currentNodeId)
+      openSet.delete(currentId)
+      closedSet.add(currentId)
 
-      const neighbors = adjacencyList[currentNodeId] ?? []
+      const neighbors = adjacencyList[currentId] ?? []
 
-      neighbors.forEach((neighbor) => {
-        if (closedSet.has(neighbor.nodeId)) return
+      for (const neighbor of neighbors) {
+        if (closedSet.has(neighbor.nodeId)) continue
+
+        const targetId = neighbor.nodeId
 
         steps.push({
           type: 'compare',
-          nodeIds: [currentNodeId!, neighbor.nodeId],
+          nodeIds: [currentId, targetId],
           edge: {
-            from: currentNodeId!,
-            to: neighbor.nodeId,
+            from: currentId,
+            to: targetId,
             weight: neighbor.weight,
           },
           pseudocodeLine: 6,
-          description: `Evaluating edge link connection "${currentNodeId}" ➔ "${neighbor.nodeId}".`,
+          description:
+            `Evaluating edge "${currentId}" → "${targetId}".`,
         })
 
-        const tentativeGScore = gScore[currentNodeId!] + neighbor.weight
+        const tentativeG =
+          gScore[currentId] + neighbor.weight
 
         steps.push({
           type: 'relax',
-          nodeIds: [neighbor.nodeId],
-          values: [tentativeGScore],
+          nodeIds: [targetId],
+          edge: {
+            from: currentId,
+            to: targetId,
+            weight: neighbor.weight,
+          },
+          values: [tentativeG],
           pseudocodeLine: 7,
-          description: `Tentative path cost g(${neighbor.nodeId}) = ${gScore[currentNodeId!]} + ${neighbor.weight} = ${tentativeGScore}.`,
+          description:
+            `Tentative cost: ${gScore[currentId]} + ${neighbor.weight} = ${tentativeG}.`,
         })
 
-        if (tentativeGScore < gScore[neighbor.nodeId]) {
-          const neighborNode = nodeMap[neighbor.nodeId]
-          if (!neighborNode) return
+        if (tentativeG < gScore[targetId]) {
+          const targetNode = nodeMap.get(targetId)
+          if (!targetNode) continue
 
-          cameFrom[neighbor.nodeId] = currentNodeId!
-          gScore[neighbor.nodeId] = tentativeGScore
-          
-          const heuristicCost = euclideanDistance(neighborNode.x, neighborNode.y, goalNode.x, goalNode.y)
-          fScore[neighbor.nodeId] = tentativeGScore + heuristicCost
+          cameFrom[targetId] = currentId
+          gScore[targetId] = tentativeG
 
-          openSet.add(neighbor.nodeId)
+          const h = heuristic(targetNode)
+          fScore[targetId] = tentativeG + h
+
+          openSet.add(targetId)
 
           steps.push({
-            type: 'discover', // UI flashes node to signal discovery and updates cost label
-            nodeIds: [neighbor.nodeId],
+            type: 'discover',
+            nodeIds: [targetId],
             edge: {
-              from: currentNodeId!,
-              to: neighbor.nodeId,
+              from: currentId,
+              to: targetId,
               weight: neighbor.weight,
             },
-            values: [fScore[neighbor.nodeId]],
+            values: [fScore[targetId]],
             pseudocodeLine: 9,
-            description: `Path optimized for "${neighbor.nodeId}": g = ${tentativeGScore.toFixed(1)}, h = ${heuristicCost.toFixed(1)} ➔ f = ${fScore[neighbor.nodeId].toFixed(2)}.`,
+            description:
+              `Updated "${targetId}": g = ${tentativeG.toFixed(2)}, h = ${h.toFixed(2)}, f = ${fScore[targetId].toFixed(2)}.`,
           })
         }
-      })
+      }
     }
 
     steps.push({
       type: 'finalize',
       nodeIds: Array.from(closedSet),
       pseudocodeLine: 5,
-      description: `Search exhausted. Target node "${goalNodeId}" is completely cut off from start origin.`,
+      description:
+        `No path exists from "${startNodeId}" to "${goalNodeId}".`,
     })
 
     return steps

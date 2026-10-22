@@ -90,6 +90,12 @@ export function useStepPlayer(
           break
 
         case 'baseCase':
+          step.indices?.forEach((idx) => {
+            if (bars[idx] && bars[idx].state !== 'sorted') {
+              bars[idx].state = 'comparing'
+            }
+          })
+          break
         case 'partition':
         case 'finalize':
           step.indices?.forEach((idx) => {

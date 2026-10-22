@@ -1,14 +1,13 @@
-import type { GraphAlgorithm, StepEvent } from '../../types'
-
+import type { GraphAlgorithm, GraphEdge, StepEvent } from '../../types'
 export const bellmanFord: GraphAlgorithm = {
   info: {
-    id: 'bellmanFord' as any,
+    id: 'bellman-ford',
     name: 'Bellman-Ford',
     category: 'graph',
     description:
-      'Bellman-Ford computes shortest paths even when graphs contain negative edge weights.',
+      'Bellman-Ford computes single-source shortest paths and detects reachable negative-weight cycles.',
     useCase:
-      'Useful for network routing tables (RIP), financial arbitrage detection in forex grids, and graphs containing negative edge costs.',
+      'Useful for weighted graph analysis, negative-cost path problems, routing concepts, and cycle detection.',
     complexity: {
       best: 'O(E)',
       average: 'O(VE)',
@@ -16,26 +15,54 @@ export const bellmanFord: GraphAlgorithm = {
       space: 'O(V)',
     },
     pseudocode: [
-      'create distance map',                        // Index 0
-      'set start distance to 0',                    // Index 1
-      'repeat V-1 times',                           // Index 2
-      '  for each edge',                            // Index 3
-      '    relax edge',                             // Index 4
-      'repeat once more',                           // Index 5
-      '  if edge still relaxes',                    // Index 6
-      '    negative cycle detected',                // Index 7
+      'create distance map',
+      'set start distance to 0',
+      'repeat V-1 times',
+      '  for each edge',
+      '    relax edge',
+      'repeat once more',
+      '  if edge still relaxes',
+      '    negative cycle detected',
     ],
   },
 
-  run(nodes, edges, startNodeId): StepEvent[] {
+  run(nodes, edges, startNodeId, options): StepEvent[] {
     const steps: StepEvent[] = []
 
-    const distances: Record<string, number> = {}
-    const cameFrom: Record<string, string> = {} // Tracks layout trees for final pathway trace
+    const nodeIds = new Set(nodes.map((node) => node.id))
 
-    nodes.forEach((node) => {
+    if (!nodeIds.has(startNodeId)) {
+      return [{
+        type: 'finalize',
+        nodeIds: [],
+        pseudocodeLine: 0,
+        description: 'Invalid start node.',
+      }]
+    }
+
+    const isDirected = options?.isDirected ?? false
+
+    // Convert graph edges into directed relaxation edges.
+    // For undirected graphs, each edge is traversable both ways.
+    const relaxationEdges: GraphEdge[] = []
+
+    for (const edge of edges) {
+      relaxationEdges.push(edge)
+
+      if (!isDirected) {
+        relaxationEdges.push({
+          from: edge.to,
+          to: edge.from,
+          weight: edge.weight,
+        })
+      }
+    }
+
+    const distances: Record<string, number> = {}
+
+    for (const node of nodes) {
       distances[node.id] = Infinity
-    })
+    }
 
     distances[startNodeId] = 0
 
@@ -44,29 +71,30 @@ export const bellmanFord: GraphAlgorithm = {
       nodeIds: [startNodeId],
       values: [0],
       pseudocodeLine: 1,
-      description: `Initialized start node "${startNodeId}" distance to 0.`,
+      description:
+        `Initialized start node "${startNodeId}" with distance 0.`,
     })
 
-    //---------------------------------------------
-    // Main relaxation phase (V-1 passes)
-    //---------------------------------------------
+    // Phase 1: Relax all edges at most V-1 times.
     for (let pass = 0; pass < nodes.length - 1; pass++) {
       let updated = false
 
-      for (const edge of edges) {
+      for (const edge of relaxationEdges) {
+        const weight = edge.weight ?? 1
+
         steps.push({
           type: 'compare',
           nodeIds: [edge.from, edge.to],
           edge,
           pseudocodeLine: 3,
-          description: `Pass ${pass + 1}: Evaluating path from "${edge.from}" to "${edge.to}".`,
+          description:
+            `Pass ${pass + 1}: Checking "${edge.from}" → "${edge.to}".`,
         })
 
         if (distances[edge.from] === Infinity) {
           continue
         }
 
-        const weight = edge.weight ?? 1
         const newDistance = distances[edge.from] + weight
 
         steps.push({
@@ -75,12 +103,12 @@ export const bellmanFord: GraphAlgorithm = {
           edge,
           values: [newDistance],
           pseudocodeLine: 4,
-          description: `Testing cost update boundary: ${distances[edge.from]} + ${weight} = ${newDistance}.`,
+          description:
+            `Testing ${distances[edge.from]} + ${weight} = ${newDistance}.`,
         })
 
         if (newDistance < distances[edge.to]) {
           distances[edge.to] = newDistance
-          cameFrom[edge.to] = edge.from
           updated = true
 
           steps.push({
@@ -89,21 +117,19 @@ export const bellmanFord: GraphAlgorithm = {
             edge,
             values: [newDistance],
             pseudocodeLine: 4,
-            description: `Optimized shortest distance of "${edge.to}" down to ${newDistance} via "${edge.from}".`,
+            description:
+              `Updated distance to "${edge.to}" = ${newDistance}.`,
           })
         }
       }
 
-      // Early exit optimization if an entire iteration yields no changes
-      if (!updated) {
-        break
-      }
+      // Stop early when a complete pass produces no updates.
+      if (!updated) break
     }
 
-    //---------------------------------------------
-    // Negative cycle detection
-    //---------------------------------------------
-    for (const edge of edges) {
+    // Phase 2: An additional relaxation identifies
+    // reachable negative-weight cycles.
+    for (const edge of relaxationEdges) {
       if (distances[edge.from] === Infinity) continue
 
       const weight = edge.weight ?? 1
@@ -114,21 +140,29 @@ export const bellmanFord: GraphAlgorithm = {
           nodeIds: [edge.from, edge.to],
           edge,
           pseudocodeLine: 7,
-          description: `Infinite loop risk! A negative weight cycle was detected spanning across link "${edge.from}" ➔ "${edge.to}". Paths are non-deterministic.`,
+          description:
+            `Negative-weight cycle detected through "${edge.from}" → "${edge.to}". Finite shortest-path costs are not defined for nodes affected by this cycle.`,
         })
 
         return steps
       }
     }
 
-    //---------------------------------------------
-    // Finished successfully
-    //---------------------------------------------
+    // Phase 3: Successful completion.
+    const reachableNodes = nodes
+      .filter((node) => distances[node.id] !== Infinity)
+      .map((node) => node.id)
+
+    const unreachableCount = nodes.length - reachableNodes.length
+
     steps.push({
       type: 'finalize',
-      nodeIds: nodes.map((node) => node.id),
-      pseudocodeLine: 5, // Highlights completion review bounds
-      description: 'Bellman-Ford completed successfully. All reachable nodes have been locked down with optimal path weights.',
+      nodeIds: reachableNodes,
+      pseudocodeLine: 5,
+      description:
+        unreachableCount > 0
+          ? `Bellman-Ford completed. ${unreachableCount} node(s) are unreachable from "${startNodeId}".`
+          : 'Bellman-Ford completed. All nodes have finite shortest-path distances.',
     })
 
     return steps
