@@ -15,10 +15,8 @@ import Controls from './Controls'
 import InputSourcePicker from './inputSourcePicker'
 import Legend from './Legend'
 import ResultsSummary from './ResultSummary'
-
 import { useStepPlayer } from '../hooks/useStepPlayer'
 
-// 1. Supported sorting algorithms
 type SortingAlgorithmId =
   | 'bubbleSort'
   | 'selectionSort'
@@ -27,7 +25,6 @@ type SortingAlgorithmId =
   | 'quickSort'
   | 'heapSort'
 
-// 2. Sorting algorithm registry
 const sortingAlgorithms: Record<SortingAlgorithmId, Algorithm> = {
   bubbleSort,
   selectionSort,
@@ -37,7 +34,6 @@ const sortingAlgorithms: Record<SortingAlgorithmId, Algorithm> = {
   heapSort,
 }
 
-// 3. Dropdown options
 const algorithmOptions: {
   id: SortingAlgorithmId
   label: string
@@ -52,24 +48,22 @@ const algorithmOptions: {
 
 const DEFAULT_ARRAY = [42, 17, 8, 65, 23, 91, 34, 56]
 
-// 4. Generate a random integer
 function randomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-// 5. Fisher-Yates shuffle
 function shuffleArray(values: number[]): number[] {
   const result = [...values]
 
   for (let i = result.length - 1; i > 0; i--) {
     const j = randomNumber(0, i)
+
     ;[result[i], result[j]] = [result[j], result[i]]
   }
 
   return result
 }
 
-// 6. Generate arrays from input presets
 function generateDataset(source: InputSource): number[] {
   const size = 8
 
@@ -130,7 +124,6 @@ function generateDataset(source: InputSource): number[] {
   }
 }
 
-// 7. Validate custom array input
 function parseCustomArray(input: string): {
   values: number[]
   error: string | null
@@ -182,7 +175,6 @@ function parseCustomArray(input: string): {
   return { values, error: null }
 }
 
-// 8. Dynamic operation labels
 function getOperationLabel(id: SortingAlgorithmId): string {
   return id === 'mergeSort' || id === 'insertionSort'
     ? 'Writes / Shifts'
@@ -190,34 +182,29 @@ function getOperationLabel(id: SortingAlgorithmId): string {
 }
 
 export default function CompareMode() {
-  // 9. Shared input
   const [inputArray, setInputArray] = useState<number[]>(
     () => [...DEFAULT_ARRAY]
   )
 
-  // 10. Input configuration
   const [selectedInputSource, setSelectedInputSource] =
     useState<InputSource>('random')
 
   const [customInput, setCustomInput] = useState('')
   const [inputError, setInputError] = useState<string | null>(null)
 
-  // 11. Independent algorithm selections
   const [leftAlgorithmId, setLeftAlgorithmId] =
     useState<SortingAlgorithmId>('quickSort')
 
   const [rightAlgorithmId, setRightAlgorithmId] =
     useState<SortingAlgorithmId>('mergeSort')
 
-  // 12. Shared playback state
   const [isPlaying, setIsPlaying] = useState(false)
   const [speed, setSpeed] = useState(500)
 
-  // 13. Algorithm implementations
   const leftAlgorithm = sortingAlgorithms[leftAlgorithmId]
   const rightAlgorithm = sortingAlgorithms[rightAlgorithmId]
 
-  // 14. Independent event streams
+  // Each algorithm receives its own copy of the same input.
   const leftSteps = useMemo(
     () => leftAlgorithm.run([...inputArray]),
     [leftAlgorithm, inputArray]
@@ -228,11 +215,15 @@ export default function CompareMode() {
     [rightAlgorithm, inputArray]
   )
 
-  // 15. Independent playback timelines
+  // Independent playback timelines.
   const leftPlayer = useStepPlayer(inputArray, leftSteps, speed)
   const rightPlayer = useStepPlayer(inputArray, rightSteps, speed)
 
-  // 16. Execution completion checks
+  // Read the callbacks directly so effect dependencies
+  // match the functions actually used by the scheduler.
+  const advanceLeft = leftPlayer.stepForward
+  const advanceRight = rightPlayer.stepForward
+
   const leftFinished =
     leftPlayer.totalSteps > 0 &&
     leftPlayer.currentStepIndex >= leftPlayer.totalSteps - 1
@@ -243,7 +234,7 @@ export default function CompareMode() {
 
   const bothFinished = leftFinished && rightFinished
 
-  // 17. Single shared playback scheduler
+  // One shared scheduler advances both timelines.
   useEffect(() => {
     if (!isPlaying || bothFinished) {
       return
@@ -251,11 +242,11 @@ export default function CompareMode() {
 
     const timeoutId = window.setTimeout(() => {
       if (!leftFinished) {
-        leftPlayer.stepForward()
+        advanceLeft()
       }
 
       if (!rightFinished) {
-        rightPlayer.stepForward()
+        advanceRight()
       }
     }, speed)
 
@@ -268,16 +259,16 @@ export default function CompareMode() {
     rightFinished,
     leftPlayer.currentStepIndex,
     rightPlayer.currentStepIndex,
+    advanceLeft,
+    advanceRight,
   ])
 
-  // 18. Reset both timelines
   const resetBoth = () => {
     setIsPlaying(false)
     leftPlayer.reset()
     rightPlayer.reset()
   }
 
-  // 19. Shared playback handlers
   const handlePlay = () => {
     if (
       leftPlayer.totalSteps === 0 ||
@@ -320,7 +311,6 @@ export default function CompareMode() {
     rightPlayer.stepBackward()
   }
 
-  // 20. Algorithm selection handlers
   const handleLeftAlgorithmChange = (id: SortingAlgorithmId) => {
     resetBoth()
     setLeftAlgorithmId(id)
@@ -331,7 +321,6 @@ export default function CompareMode() {
     setRightAlgorithmId(id)
   }
 
-  // 21. Input source handlers
   const handleInputSourceChange = (source: InputSource) => {
     setIsPlaying(false)
     setSelectedInputSource(source)
@@ -360,7 +349,7 @@ export default function CompareMode() {
     setInputError(null)
   }
 
-  // 22. NEW: Derive the final results from both players
+  // Derive the summary from both current player states.
   const leftResult = {
     info: leftAlgorithm.info,
     comparisons: leftPlayer.comparisons,
@@ -377,7 +366,6 @@ export default function CompareMode() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 p-6 text-slate-100">
-
       {/* Header */}
       <header className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
         <h1 className="text-2xl font-bold text-white">
@@ -416,10 +404,8 @@ export default function CompareMode() {
 
       {/* Side-by-side visualizers */}
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-
         {/* Algorithm A */}
         <section className="flex min-w-0 flex-col gap-4">
-
           <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
             <label
               htmlFor="compare-left-algorithm"
@@ -469,7 +455,6 @@ export default function CompareMode() {
 
         {/* Algorithm B */}
         <section className="flex min-w-0 flex-col gap-4">
-
           <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
             <label
               htmlFor="compare-right-algorithm"
@@ -535,7 +520,6 @@ export default function CompareMode() {
 
       {/* Execution status */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
           <p className="text-sm font-semibold">
             {leftAlgorithm.info.name}
@@ -559,17 +543,15 @@ export default function CompareMode() {
               : 'Execution in progress'}
           </p>
         </div>
-
       </div>
 
-      {/* 23. NEW: Display results after BOTH finish */}
+      {/* Display final results after both algorithms finish */}
       {bothFinished && (
         <ResultsSummary
           left={leftResult}
           right={rightResult}
         />
       )}
-
     </div>
   )
 }

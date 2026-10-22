@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { ArrayBar, StepEvent, UseStepPlayerResult } from '../types'
+import type {
+  ArrayBar,
+  StepEvent,
+  UseStepPlayerResult,
+} from '../types'
 
 export function useStepPlayer(
   initialArray: number[],
@@ -13,8 +17,8 @@ export function useStepPlayer(
   const currentStep = steps[currentStepIndex] ?? null
 
   const { bars, comparisons, swapsOrWrites } = useMemo(() => {
-    // 1. Rebuild the base tracking values on frame change
     const workingArray = [...initialArray]
+
     const bars: ArrayBar[] = workingArray.map((value) => ({
       value,
       state: 'default',
@@ -23,12 +27,18 @@ export function useStepPlayer(
     let comparisons = 0
     let swapsOrWrites = 0
 
-    // 2. Compute state by incrementally playing back mutations from frame 0 to current
-    for (let stepIndex = 0; stepIndex <= currentStepIndex; stepIndex++) {
+    // Rebuild the visible state by replaying events
+    // from the beginning through the current step.
+    for (
+      let stepIndex = 0;
+      stepIndex <= currentStepIndex;
+      stepIndex++
+    ) {
       const step = steps[stepIndex]
       if (!step) continue
 
-      // Reset transient visual highlight tags unless locked by finalize
+      // Reset temporary highlights while preserving
+      // finalized elements.
       bars.forEach((bar) => {
         if (bar.state !== 'sorted') {
           bar.state = 'default'
@@ -36,79 +46,139 @@ export function useStepPlayer(
       })
 
       switch (step.type) {
-        case 'compare':
+        case 'compare': {
           comparisons++
+
           step.indices?.forEach((idx) => {
-            if (bars[idx]) bars[idx].state = 'comparing'
-          })
-          break
-
-        case 'pivot':
-          step.indices?.forEach((idx) => {
-            if (bars[idx]) bars[idx].state = 'pivot'
-          })
-          break
-
-        case 'swap':
-          const [s1, s2] = step.indices ?? []
-          if (s1 !== undefined && s2 !== undefined && bars[s1] && bars[s2]) {
-            ;[workingArray[s1], workingArray[s2]] = [workingArray[s2], workingArray[s1]]
-            ;[bars[s1].value, bars[s2].value] = [bars[s2].value, bars[s1].value]
-            bars[s1].state = 'swapping'
-            bars[s2].state = 'swapping'
-            swapsOrWrites++
-          }
-          break
-
-        case 'shift':
-          const [fromIdx, toIdx] = step.indices ?? []
-          if (fromIdx !== undefined && toIdx !== undefined && bars[toIdx]) {
-            workingArray[toIdx] = workingArray[fromIdx]
-            bars[toIdx].value = workingArray[fromIdx]
-            bars[toIdx].state = 'swapping'
-            swapsOrWrites++
-          }
-          break
-
-        case 'overwrite':
-          const targetIdx = step.indices?.[0]
-          const newVal = step.values?.[0]
-          if (targetIdx !== undefined && newVal !== undefined && bars[targetIdx]) {
-            workingArray[targetIdx] = newVal
-            bars[targetIdx].value = newVal
-            bars[targetIdx].state = 'swapping'
-            swapsOrWrites++
-          }
-          break
-
-        case 'divide':
-        case 'merge':
-          // Highlight active subsets or ranges using matching styles
-          step.indices?.forEach((idx) => {
-            if (bars[idx]) bars[idx].state = 'comparing'
-          })
-          break
-
-        case 'baseCase':
-          step.indices?.forEach((idx) => {
-            if (bars[idx] && bars[idx].state !== 'sorted') {
+            if (bars[idx]) {
               bars[idx].state = 'comparing'
             }
           })
+
           break
-        case 'partition':
-        case 'finalize':
+        }
+
+        case 'pivot': {
           step.indices?.forEach((idx) => {
-            if (bars[idx]) bars[idx].state = 'sorted'
+            if (bars[idx]) {
+              bars[idx].state = 'pivot'
+            }
           })
+
           break
+        }
+
+        case 'swap': {
+          const [s1, s2] = step.indices ?? []
+
+          if (
+            s1 !== undefined &&
+            s2 !== undefined &&
+            bars[s1] &&
+            bars[s2]
+          ) {
+            ;[workingArray[s1], workingArray[s2]] = [
+              workingArray[s2],
+              workingArray[s1],
+            ]
+
+            ;[bars[s1].value, bars[s2].value] = [
+              bars[s2].value,
+              bars[s1].value,
+            ]
+
+            bars[s1].state = 'swapping'
+            bars[s2].state = 'swapping'
+
+            swapsOrWrites++
+          }
+
+          break
+        }
+
+        case 'shift': {
+          const [fromIdx, toIdx] = step.indices ?? []
+
+          if (
+            fromIdx !== undefined &&
+            toIdx !== undefined &&
+            bars[toIdx]
+          ) {
+            workingArray[toIdx] = workingArray[fromIdx]
+            bars[toIdx].value = workingArray[fromIdx]
+            bars[toIdx].state = 'swapping'
+
+            swapsOrWrites++
+          }
+
+          break
+        }
+
+        case 'overwrite': {
+          const targetIdx = step.indices?.[0]
+          const newVal = step.values?.[0]
+
+          if (
+            targetIdx !== undefined &&
+            newVal !== undefined &&
+            bars[targetIdx]
+          ) {
+            workingArray[targetIdx] = newVal
+            bars[targetIdx].value = newVal
+            bars[targetIdx].state = 'swapping'
+
+            swapsOrWrites++
+          }
+
+          break
+        }
+
+        case 'divide':
+        case 'merge': {
+          step.indices?.forEach((idx) => {
+            if (bars[idx]) {
+              bars[idx].state = 'comparing'
+            }
+          })
+
+          break
+        }
+
+        case 'baseCase': {
+          step.indices?.forEach((idx) => {
+            if (
+              bars[idx] &&
+              bars[idx].state !== 'sorted'
+            ) {
+              bars[idx].state = 'comparing'
+            }
+          })
+
+          break
+        }
+
+        case 'partition':
+        case 'finalize': {
+          step.indices?.forEach((idx) => {
+            if (bars[idx]) {
+              bars[idx].state = 'sorted'
+            }
+          })
+
+          break
+        }
       }
     }
 
-    return { bars, comparisons, swapsOrWrites }
+    return {
+      bars,
+      comparisons,
+      swapsOrWrites,
+    }
   }, [initialArray, steps, currentStepIndex])
 
-  // Interval execution control
+  // Automatically advance the playback position
+  // while the player is running.
   useEffect(() => {
     if (!isPlaying) return
 
@@ -118,12 +188,13 @@ export function useStepPlayer(
     }
 
     const intervalId = window.setInterval(() => {
-      setCurrentStepIndex((prev) => {
-        if (prev >= totalSteps - 1) {
+      setCurrentStepIndex((previous) => {
+        if (previous >= totalSteps - 1) {
           setIsPlaying(false)
-          return prev
+          return previous
         }
-        return prev + 1
+
+        return previous + 1
       })
     }, speed)
 
@@ -138,10 +209,24 @@ export function useStepPlayer(
     isPlaying,
     comparisons,
     swapsOrWrites,
+
     play: () => setIsPlaying(true),
+
     pause: () => setIsPlaying(false),
-    reset: () => { setIsPlaying(false); setCurrentStepIndex(0); },
-    stepForward: () => setCurrentStepIndex((p) => Math.min(p + 1, totalSteps - 1)),
-    stepBackward: () => setCurrentStepIndex((p) => Math.max(p - 1, 0)),
+
+    reset: () => {
+      setIsPlaying(false)
+      setCurrentStepIndex(0)
+    },
+
+    stepForward: () =>
+      setCurrentStepIndex((previous) =>
+        Math.min(previous + 1, totalSteps - 1)
+      ),
+
+    stepBackward: () =>
+      setCurrentStepIndex((previous) =>
+        Math.max(previous - 1, 0)
+      ),
   }
 }

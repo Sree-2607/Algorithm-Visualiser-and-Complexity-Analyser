@@ -33,7 +33,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     <ThemeContext.Provider
       value={{
         theme,
-        toggleTheme: () => setTheme((value) => value === 'dark' ? 'light' : 'dark'),
+        toggleTheme: () =>
+          setTheme((value) => (value === 'dark' ? 'light' : 'dark')),
       }}
     >
       {children}
@@ -41,8 +42,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// This is an intentional public hook alongside the provider.
+// Keep the existing imports intact; no provider or state behavior changes.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   const context = useContext(ThemeContext)
-  if (!context) throw new Error('useTheme must be used inside ThemeProvider')
+  if (!context) {
+    throw new Error('useTheme must be used inside ThemeProvider')
+  }
   return context
 }
