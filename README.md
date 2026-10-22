@@ -7,8 +7,6 @@ Built with **React, TypeScript, Vite, and Tailwind CSS**, the application brings
 
 I developed this project to understand algorithms beyond their final outputs: how operations unfold, how intermediate states change, and how computational work varies with different inputs.
 
-**[Live Application](https://algorithm-visualiser-and-complexity.vercel.app/)** | **[Source Code](https://github.com/Sree-2607/Algorithm-Visualiser-and-Complexity-Analyser)**
-
 ---
 
 ## Overview
