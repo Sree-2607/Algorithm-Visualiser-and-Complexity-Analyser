@@ -68,7 +68,7 @@ export const algorithmDescriptions: Record<string, AlgorithmDescription> = {
     keyProperties: [
       { label: 'Data Structure', value: 'Stack / Call Stack' },
       { label: 'Guarantees Shortest Path', value: 'No' },
-      { label: 'Space Memory', value: 'O(H) where H is max tree height' },
+      { label: 'Space Complexity', value: 'O(V) including visited set and recursion stack' },
     ],
   },
 
@@ -91,7 +91,7 @@ export const algorithmDescriptions: Record<string, AlgorithmDescription> = {
       'Resource expenditure optimization across weighted transport networks.',
     ],
     limitations: [
-      'Fails or enters infinite loops on graphs containing negative edge weights.',
+      'Requires non-negative edge weights for its shortest-path correctness guarantee. Negative weights can produce incorrect results.',
       'Slower than A* search because it expands blindly in all directions.',
     ],
     keyProperties: [
@@ -126,7 +126,7 @@ export const algorithmDescriptions: Record<string, AlgorithmDescription> = {
     keyProperties: [
       { label: 'Evaluation Metric', value: 'f(n) = g(n) + h(n)' },
       { label: 'Heuristic Metric', value: 'Euclidean / Manhattan' },
-      { label: 'Guarantees Optimal Path', value: 'Yes (if heuristic is admissible)' },
+      { label: 'Guarantees Optimal Path', value: 'With suitable admissible and consistent heuristic assumptions' },
     ],
   },
 
@@ -314,7 +314,7 @@ export const algorithmDescriptions: Record<string, AlgorithmDescription> = {
     keyProperties: [
       { label: 'In-Place', value: 'Yes' },
       { label: 'Stable', value: 'No' },
-      { label: 'Auxiliary Space', value: 'O(1)' },
+      { label: 'Auxiliary Space', value: 'O(log N) — recursive heapify stack' },
     ],
   },
-}
+} 

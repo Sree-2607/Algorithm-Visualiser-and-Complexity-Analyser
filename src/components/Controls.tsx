@@ -1,3 +1,4 @@
+
 import type { ControlsProps } from '../types'
 
 export default function Controls({
@@ -12,24 +13,26 @@ export default function Controls({
 }: ControlsProps) {
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-lg">
+
+      {/* Reset can be used even during playback */}
       <button
         type="button"
         onClick={onReset}
-        disabled={isPlaying}
-        className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white transition-all hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-slate-800 active:scale-95"
+        className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white transition-all hover:bg-slate-700 active:scale-95"
       >
         ↺ Reset
       </button>
 
+      {/* Back can be used even during playback */}
       <button
         type="button"
         onClick={onStepBackward}
-        disabled={isPlaying}
-        className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white transition-all hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-slate-800 active:scale-95"
+        className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white transition-all hover:bg-slate-700 active:scale-95"
       >
         ⏮ Back
       </button>
 
+      {/* Play / Pause toggle */}
       <button
         type="button"
         onClick={isPlaying ? onPause : onPlay}
@@ -42,27 +45,35 @@ export default function Controls({
         {isPlaying ? '⏸ Pause' : '▶ Play'}
       </button>
 
+      {/* Next can be used even during playback */}
       <button
         type="button"
         onClick={onStepForward}
-        disabled={isPlaying}
-        className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white transition-all hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-slate-800 active:scale-95"
+        className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white transition-all hover:bg-slate-700 active:scale-95"
       >
         ⏭ Next
       </button>
 
+      {/* Animation speed */}
       <div className="ml-auto flex items-center gap-3 rounded-xl border border-slate-800/60 bg-slate-950 px-4 py-1.5">
-        <label className="select-none text-xs font-bold uppercase tracking-wider text-slate-400">
+
+        <label
+          htmlFor="playback-speed"
+          className="select-none text-xs font-bold uppercase tracking-wider text-slate-400"
+        >
           Speed
         </label>
 
         <input
+          id="playback-speed"
           type="range"
           min="100"
           max="1000"
           step="100"
           value={speed}
-          onChange={(event) => onSpeedChange(Number(event.target.value))}
+          onChange={(event) =>
+            onSpeedChange(Number(event.target.value))
+          }
           className="h-1.5 w-32 cursor-pointer appearance-none rounded-lg bg-slate-800 accent-amber-500 sm:w-40"
         />
 

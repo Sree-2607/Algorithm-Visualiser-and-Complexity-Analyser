@@ -1,3 +1,4 @@
+
 import type { GraphAlgorithm, StepEvent } from '../../types'
 import { buildAdjacencyList } from './graphUtils'
 
@@ -71,9 +72,14 @@ export const bfs: GraphAlgorithm = {
       const neighbors = adjacencyList[currentNodeId] ?? []
 
       neighbors.forEach((neighborId) => {
+        // Highlight the edge currently being examined.
         steps.push({
           type: 'compare',
           nodeIds: [currentNodeId, neighborId],
+          edge: {
+            from: currentNodeId,
+            to: neighborId,
+          },
           pseudocodeLine: 7,
           description: `Checking neighbor "${neighborId}" of node "${currentNodeId}"`,
         })
@@ -81,9 +87,14 @@ export const bfs: GraphAlgorithm = {
         if (!visited.has(neighborId)) {
           visited.add(neighborId)
 
+          // Highlight the discovery edge and its destination.
           steps.push({
             type: 'discover',
             nodeIds: [neighborId],
+            edge: {
+              from: currentNodeId,
+              to: neighborId,
+            },
             pseudocodeLine: 9,
             description: `Neighbor "${neighborId}" is discovered`,
           })

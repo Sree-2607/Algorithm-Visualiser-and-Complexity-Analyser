@@ -1,36 +1,11 @@
-import GraphVisualizer from './components/GraphVisualizer'
-import InformationPanel from './components/InformationPanel'
-import { createDefaultGraph } from './algorithms/data/graphPresets'
-
+import GraphScreen from './screens/GraphScreen'
 
 function App() {
-
-  const graph = createDefaultGraph()
-
   return (
-    <div className="min-h-screen bg-slate-800 p-8">
-
-      <h1 className="mb-6 text-3xl font-bold text-white">
-        Algorithm Visualizer
-      </h1>
-
-
-      <div className="space-y-6">
-
-        <GraphVisualizer 
-          graph={graph}
-        />
-
-
-        <InformationPanel
-          algorithmId="dijkstra"
-        />
-
-      </div>
-
-    </div>
+    <main className="min-h-screen bg-slate-800">
+      <GraphScreen />
+    </main>
   )
 }
-
 
 export default App

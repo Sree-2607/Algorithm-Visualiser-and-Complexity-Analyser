@@ -1,3 +1,4 @@
+
 import type { GraphAlgorithm, StepEvent } from '../../types'
 import { buildAdjacencyList } from './graphUtils'
 
@@ -28,9 +29,7 @@ export const dfs: GraphAlgorithm = {
 
   run(nodes, edges, startNodeId): StepEvent[] {
     const steps: StepEvent[] = []
-
     const adjacencyList = buildAdjacencyList(nodes, edges)
-
     const visited = new Set<string>()
 
     function dfsVisit(currentNodeId: string): void {
@@ -46,9 +45,14 @@ export const dfs: GraphAlgorithm = {
       const neighbors = adjacencyList[currentNodeId] ?? []
 
       neighbors.forEach((neighborId) => {
+        // Highlight the edge under examination.
         steps.push({
           type: 'compare',
           nodeIds: [currentNodeId, neighborId],
+          edge: {
+            from: currentNodeId,
+            to: neighborId,
+          },
           pseudocodeLine: 3,
           description: `Checking edge from "${currentNodeId}" to "${neighborId}".`,
         })
@@ -56,20 +60,30 @@ export const dfs: GraphAlgorithm = {
         steps.push({
           type: 'compare',
           nodeIds: [neighborId],
+          edge: {
+            from: currentNodeId,
+            to: neighborId,
+          },
           pseudocodeLine: 4,
           description: `Checking whether "${neighborId}" has already been visited.`,
         })
 
         if (!visited.has(neighborId)) {
+          // Highlight the edge used for recursive descent.
           steps.push({
             type: 'discover',
             nodeIds: [neighborId],
+            edge: {
+              from: currentNodeId,
+              to: neighborId,
+            },
             pseudocodeLine: 5,
             description: `Discovered new node "${neighborId}". Descending recursively.`,
           })
 
           dfsVisit(neighborId)
 
+          // The recursive call has returned to its parent.
           steps.push({
             type: 'visit',
             nodeIds: [currentNodeId],
@@ -80,6 +94,10 @@ export const dfs: GraphAlgorithm = {
           steps.push({
             type: 'compare',
             nodeIds: [neighborId],
+            edge: {
+              from: currentNodeId,
+              to: neighborId,
+            },
             pseudocodeLine: 4,
             description: `Node "${neighborId}" was already visited. Skipping.`,
           })

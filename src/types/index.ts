@@ -9,6 +9,7 @@ export type AlgorithmType =
   | 'dfs'
   | 'dijkstra'
   | 'astar'
+  | 'bellman-ford'
 
 export type AlgorithmCategory = 'sorting' | 'graph'
 
@@ -157,6 +158,7 @@ export type PseudoCodePanelProps = {
 export type AlgoSelectorProps = {
   selectedAlgorithm: AlgorithmType
   onAlgorithmChange: (algorithm: AlgorithmType) => void
+  category?: 'sorting' | 'graph' | 'all'
 }
 
 export type InputSourcePickerProps = {
