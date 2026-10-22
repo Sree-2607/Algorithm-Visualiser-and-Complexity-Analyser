@@ -20,7 +20,6 @@ import Controls from '../components/Controls'
 import StatsPanel from '../components/StatsPanel'
 import Legend from '../components/Legend'
 import InformationPanel from '../components/InformationPanel'
-
 import { useStepPlayer } from '../hooks/useStepPlayer'
 
 // Sorting-only algorithm IDs

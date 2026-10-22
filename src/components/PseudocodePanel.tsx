@@ -5,8 +5,8 @@ export default function PseudoCodePanel({
   activeLine,
 }: PseudoCodePanelProps) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg h-full">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-500 select-none">
+    <div className="h-full rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg">
+      <h3 className="mb-4 select-none text-xs font-bold uppercase tracking-wider text-slate-500">
         Pseudocode Execution Tracker
       </h3>
 
@@ -17,21 +17,22 @@ export default function PseudoCodePanel({
           return (
             <div
               key={index}
-              className={`flex items-start rounded-lg px-3 py-1.5 transition-all duration-150 ${
+              aria-current={isActive ? 'step' : undefined}
+              className={`flex items-start rounded-lg border px-3 py-1.5 transition-all duration-150 ${
                 isActive
-                  ? 'bg-amber-500 font-bold text-slate-950 shadow-md shadow-amber-500/10 scale-[1.01]'
-                  : 'bg-slate-950/60 text-slate-400 border border-slate-900'
+                  ? 'theme-code-active scale-[1.01] border-amber-500 bg-amber-500 font-bold shadow-md shadow-amber-500/10'
+                  : 'theme-code-inactive'
               }`}
             >
-              {/* Line Number Gutter */}
-              <span className={`w-6 shrink-0 text-right mr-4 select-none text-xs font-semibold ${
-                isActive ? 'text-slate-800' : 'text-slate-600'
-              }`}>
+              <span
+                className={`theme-code-number mr-4 w-6 shrink-0 select-none text-right text-xs font-semibold ${
+                  isActive ? 'theme-code-number-active' : ''
+                }`}
+              >
                 {index}
               </span>
 
-              {/* Code Line Body — whitespace-pre preserves your nested indentation tabs */}
-              <span className="whitespace-pre break-all">
+              <span className="min-w-0 whitespace-pre-wrap break-words">
                 {line}
               </span>
             </div>

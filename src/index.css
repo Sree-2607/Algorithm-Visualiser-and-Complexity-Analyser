@@ -1,1 +1,380 @@
 @import "tailwindcss";
+
+/* Dark remains the default theme. */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --graph-node-bg: #0f172a;
+  --graph-node-border: #334155;
+  --graph-node-text: #ffffff;
+  --graph-edge: #475569;
+  --graph-weight-bg: #0f172a;
+  --graph-weight-text: #e2e8f0;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --graph-node-bg: #ffffff;
+  --graph-node-border: #64748b;
+  --graph-node-text: #0f172a;
+  --graph-edge: #94a3b8;
+  --graph-weight-bg: #ffffff;
+  --graph-weight-text: #0f172a;
+}
+
+/* Compatibility layer for existing Tailwind classes. */
+:root[data-theme='light'] body {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+:root[data-theme='light'] .bg-slate-950 {
+  background-color: #e2e8f0;
+}
+
+:root[data-theme='light'] .bg-slate-900 {
+  background-color: #ffffff;
+}
+
+:root[data-theme='light'] .bg-slate-850 {
+  background-color: #f8fafc;
+}
+
+:root[data-theme='light'] .bg-slate-800 {
+  background-color: #f1f5f9;
+}
+
+:root[data-theme='light'] .bg-slate-700 {
+  background-color: #e2e8f0;
+}
+
+:root[data-theme='light'] .bg-slate-600 {
+  background-color: #94a3b8;
+}
+
+:root[data-theme='light'] .border-slate-900,
+:root[data-theme='light'] .border-slate-800,
+:root[data-theme='light'] .border-slate-700 {
+  border-color: #cbd5e1;
+}
+
+:root[data-theme='light'] .border-slate-600 {
+  border-color: #94a3b8;
+}
+
+:root[data-theme='light'] .text-white,
+:root[data-theme='light'] .text-slate-100 {
+  color: #0f172a;
+}
+
+:root[data-theme='light'] .text-slate-200 {
+  color: #1e293b;
+}
+
+:root[data-theme='light'] .text-slate-300 {
+  color: #334155;
+}
+
+:root[data-theme='light'] .text-slate-400 {
+  color: #475569;
+}
+
+:root[data-theme='light'] .text-slate-500 {
+  color: #64748b;
+}
+
+:root[data-theme='light']
+.text-slate-950:not(.bg-amber-500):not(.bg-emerald-500) {
+  color: #0f172a;
+}
+
+:root[data-theme='light'] .bg-amber-500.text-slate-950,
+:root[data-theme='light'] .bg-emerald-500.text-slate-950 {
+  color: #0f172a;
+}
+
+:root[data-theme='light'] .bg-blue-500.text-white,
+:root[data-theme='light'] .bg-red-500.text-white,
+:root[data-theme='light'] .bg-emerald-600.text-white,
+:root[data-theme='light'] .bg-purple-500.text-white {
+  color: #ffffff;
+}
+
+/* Opacity-based background utilities. */
+:root[data-theme='light'] [class~='bg-slate-900/50'],
+:root[data-theme='light'] [class~='bg-slate-900/60'],
+:root[data-theme='light'] [class~='bg-slate-900/80'],
+:root[data-theme='light'] [class~='bg-slate-950/50'] {
+  background-color: #f8fafc;
+}
+
+:root[data-theme='light'] [class~='bg-slate-800/50'],
+:root[data-theme='light'] [class~='bg-slate-800/60'],
+:root[data-theme='light'] [class~='bg-slate-800/80'] {
+  background-color: #f1f5f9;
+}
+
+:root[data-theme='light'] [class~='border-slate-800/50'],
+:root[data-theme='light'] [class~='border-slate-700/50'] {
+  border-color: #cbd5e1;
+}
+
+:root[data-theme='light'] [class~='bg-red-950/40'],
+:root[data-theme='light'] [class~='bg-red-900/20'] {
+  background-color: #fff1f2;
+}
+
+:root[data-theme='light'] .text-red-300 {
+  color: #b91c1c;
+}
+
+:root[data-theme='light'] .text-amber-300,
+:root[data-theme='light'] .text-amber-400 {
+  color: #92400e;
+}
+
+:root[data-theme='light'] .text-emerald-400 {
+  color: #047857;
+}
+
+:root[data-theme='light'] .text-sky-400 {
+  color: #0369a1;
+}
+
+/* Shared hover behavior. */
+@media (hover: hover) {
+  :root[data-theme='light'] .hover\:bg-slate-700:hover {
+    background-color: #e2e8f0;
+  }
+
+  :root[data-theme='light'] .hover\:bg-slate-800:hover {
+    background-color: #f1f5f9;
+  }
+
+  :root[data-theme='light'] .hover\:text-white:hover {
+    color: #0f172a;
+  }
+
+  :root[data-theme='light'] .hover\:text-slate-300:hover {
+    color: #334155;
+  }
+}
+
+/* Complexity chart axis styling. */
+:root[data-theme='light']
+svg[aria-label='Complexity growth line chart comparing selected algorithms']
+text {
+  fill: #475569;
+}
+
+:root[data-theme='light']
+svg[aria-label='Complexity growth line chart comparing selected algorithms']
+line[stroke='#334155'] {
+  stroke: #cbd5e1;
+}
+
+/* Native form control defaults. */
+:root[data-theme='light'] input,
+:root[data-theme='light'] select,
+:root[data-theme='light'] textarea {
+  color: #0f172a;
+}
+
+:root[data-theme='light'] input::placeholder,
+:root[data-theme='light'] textarea::placeholder {
+  color: #64748b;
+}
+
+/* ==========================================
+   M6.4 — Component-specific theme corrections
+   ========================================== */
+
+/* Algorithm selector */
+.theme-algorithm-select {
+  background-color: #020617;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+
+.theme-algorithm-select:hover {
+  border-color: #64748b;
+}
+
+.theme-algorithm-select option,
+.theme-algorithm-select optgroup {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+.theme-select-arrow {
+  color: #94a3b8;
+}
+
+:root[data-theme='light'] .theme-algorithm-select {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme='light'] .theme-algorithm-select:hover {
+  border-color: #64748b;
+}
+
+:root[data-theme='light'] .theme-algorithm-select option,
+:root[data-theme='light'] .theme-algorithm-select optgroup {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+:root[data-theme='light'] .theme-select-arrow {
+  color: #475569;
+}
+
+/* Pseudocode tracker */
+.theme-code-inactive {
+  background-color: #020617;
+  border-color: #1e293b;
+  color: #cbd5e1;
+}
+
+.theme-code-active {
+  color: #020617;
+}
+
+.theme-code-number {
+  color: #64748b;
+}
+
+.theme-code-number-active {
+  color: #1e293b;
+}
+
+:root[data-theme='light'] .theme-code-inactive {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+:root[data-theme='light'] .theme-code-active {
+  background-color: #f59e0b;
+  color: #111827;
+}
+
+:root[data-theme='light'] .theme-code-number {
+  color: #64748b;
+}
+
+:root[data-theme='light'] .theme-code-number-active {
+  color: #1e293b;
+}
+
+/* Information panel tabs */
+.theme-info-tabbar {
+  background-color: #020617;
+  border-color: #1e293b;
+}
+
+.theme-info-tab-active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.theme-info-tab-inactive {
+  color: #94a3b8;
+}
+
+.theme-info-tab-inactive:hover {
+  color: #f1f5f9;
+}
+
+:root[data-theme='light'] .theme-info-tabbar {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme='light'] .theme-info-tab-active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+:root[data-theme='light'] .theme-info-tab-inactive {
+  color: #475569;
+}
+
+:root[data-theme='light'] .theme-info-tab-inactive:hover {
+  color: #0f172a;
+}
+
+/* Information property cards */
+.theme-property-card {
+  background-color: #020617;
+  border-color: #334155;
+}
+
+.theme-property-label {
+  color: #94a3b8;
+}
+
+.theme-property-value {
+  color: #f1f5f9;
+}
+
+:root[data-theme='light'] .theme-property-card {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme='light'] .theme-property-label {
+  color: #475569;
+}
+
+:root[data-theme='light'] .theme-property-value {
+  color: #0f172a;
+}
+
+/* Information body and callouts */
+.theme-info-body {
+  color: #cbd5e1;
+}
+
+.theme-info-success {
+  background-color: rgba(6, 78, 59, 0.15);
+  border-color: #065f46;
+}
+
+.theme-info-success-title {
+  color: #34d399;
+}
+
+.theme-info-danger {
+  background-color: rgba(127, 29, 29, 0.15);
+  border-color: #7f1d1d;
+}
+
+.theme-info-danger-title {
+  color: #fb7185;
+}
+
+:root[data-theme='light'] .theme-info-body {
+  color: #334155;
+}
+
+:root[data-theme='light'] .theme-info-success {
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+:root[data-theme='light'] .theme-info-success-title {
+  color: #047857;
+}
+
+:root[data-theme='light'] .theme-info-danger {
+  background-color: #fff1f2;
+  border-color: #fecdd3;
+}
+
+:root[data-theme='light'] .theme-info-danger-title {
+  color: #be123c;
+}
